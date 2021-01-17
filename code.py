@@ -1,4 +1,4 @@
-from util.email import SendInBlueMailer
+from util import SendInBlueMailer
 from os import getenv
 
 from dotenv import load_dotenv
