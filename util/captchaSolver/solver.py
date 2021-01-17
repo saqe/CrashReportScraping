@@ -1,5 +1,6 @@
 import requests
 from os import getenv
+from time import sleep
 
 class Solver:
     def __init__(self):
@@ -21,7 +22,7 @@ class Solver:
             
         while True:
             sleep(4) # Wait for captcha solver service to solve the recaptcha
-            captcha_solution=re.get(
+            captcha_solution=requests.get(
                 CAPTCHA_CHECK_API_LINK.format(
                     API_KEY=getenv('CAPTCHA_API_KEY'),
                     requests_id=self.requests_id)
@@ -33,6 +34,9 @@ class Solver:
                 print('CAPTCHA NOT READY - Trying again')
 
         print('[-] Captcha Solved')
+        
+        # TODO report recaptcha id and response
+        
         return captcha_solution.upper()
 
     # [Optional] Report the captcha if that works fine

@@ -1,7 +1,7 @@
 from pymongo import MongoClient
 from os import getenv
 
-class dbManager:
+class DatabaseManager:
     def __init__(self):
         # Connection made with mongoDb database
         connection = MongoClient(
