@@ -8,7 +8,7 @@ def __init__(self):
             "email" : getenv('EMAIL_SENDER')
         },
         "to": [{"email":getenv('EMAIL_TO')}],
-        "subject": getenv('EMAIL_TO'),
+        "subject": getenv('EMAIL_SUBJECT'),
     }
   self.headers = {
       "Accept": "application/json",
@@ -21,8 +21,8 @@ def send_message(message):
 
   response = requests.post(
       getenv('SMTP_API_LINK'),
-      json=payload, 
-      headers=headers
+      json=self.payload, 
+      headers=self.headers
     )
   print(response.text)
   
