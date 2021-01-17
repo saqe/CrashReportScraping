@@ -5,7 +5,7 @@ class Solver:
     def __init__(self):
         self.captchaData={
             'method'  :'base64',
-            'key'     :getenv('CAPTACHA_API_KEY'),
+            'key'     :getenv('CAPTCHA_API_KEY'),
             'json'    :1,
             'caseSensitive':1,
         }
@@ -13,7 +13,7 @@ class Solver:
     def solve_normal_captcha(self,base64string):
         self.captchaData['body']=base64string
         self.requests_id=requests.post(
-            getenv('CAPTCHA_API_LINK'),
+            getenv('CAPTCHA_API_KEY'),
             data=captchaData
             ).json()['request']
 
@@ -23,7 +23,7 @@ class Solver:
             sleep(4) # Wait for captcha solver service to solve the recaptcha
             captcha_solution=re.get(
                 CAPTCHA_CHECK_API_LINK.format(
-                    API_KEY=getenv('CAPTACHA_API_KEY'),
+                    API_KEY=getenv('CAPTCHA_API_KEY'),
                     requests_id=self.requests_id)
                 ).json()['request']
 
@@ -39,7 +39,7 @@ class Solver:
     def report_good(self):
         requests.get(
             getenv('CAPTCHA_API_REPORT').format(
-                key=getenv('CAPTACHA_API_KEY'),
+                key=getenv('CAPTCHA_API_KEY'),
                 action='reportgood',
                 report_id=self.requests_id)
         )
@@ -48,7 +48,7 @@ class Solver:
     def report_bad(self):
         requests.get(
             getenv('CAPTCHA_API_REPORT').format(
-                key=getenv('CAPTACHA_API_KEY'),
+                key=getenv('CAPTCHA_API_KEY'),
                 action='reportbad',
                 report_id=self.requests_id)
         )
