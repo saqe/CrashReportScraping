@@ -2,7 +2,7 @@ import requests
 from os import getenv
 from time import sleep
 
-class Solver:
+class CaptchaSolver:
     def __init__(self):
         self.captchaData={
             'method'  :'base64',
@@ -14,8 +14,8 @@ class Solver:
     def solve_normal_captcha(self,base64string):
         self.captchaData['body']=base64string
         self.requests_id=requests.post(
-            getenv('CAPTCHA_API_KEY'),
-            data=captchaData
+            getenv('CAPTCHA_API_LINK'),
+            data=self.captchaData
             ).json()['request']
 
         print('Captcha Sent to the server')
@@ -23,10 +23,11 @@ class Solver:
         while True:
             sleep(4) # Wait for captcha solver service to solve the recaptcha
             captcha_solution=requests.get(
-                CAPTCHA_CHECK_API_LINK.format(
-                    API_KEY=getenv('CAPTCHA_API_KEY'),
-                    requests_id=self.requests_id)
-                ).json()['request']
+                    getenv('CAPTCHA_API_CHECK_LINK')\
+                        .format(
+                            API_KEY=getenv('CAPTCHA_API_KEY'),
+                            requests_id=self.requests_id)
+                        ).json()['request']
 
             if captcha_solution != 'CAPCHA_NOT_READY':       
                 break
@@ -36,7 +37,7 @@ class Solver:
         print('[-] Captcha Solved')
         
         # TODO report recaptcha id and response
-        
+
         return captcha_solution.upper()
 
     # [Optional] Report the captcha if that works fine

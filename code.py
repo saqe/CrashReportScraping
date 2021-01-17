@@ -1,5 +1,5 @@
-from util import SendInBlueMailer
 from os import getenv
+import Scraper
 
 from dotenv import load_dotenv
 load_dotenv()

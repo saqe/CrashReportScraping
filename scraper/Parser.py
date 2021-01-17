@@ -4,6 +4,14 @@ class Parser:
     def __init__(self):
         self.db=DatabaseManager()
     
+    def get_verification_token(self, pageParser):
+        return pageParser\
+            .find('form',{'id':'Search'})\
+            .find('input',{'name':'__RequestVerificationToken'})['value']
+
+    def is_next_button_exists(self, pageParser):
+        return pageParser.find('li',{'aria-label':'Next page'}) is not None
+
     def parse_result(self, pageParser, county_name):
         # TODO report error here with Sentry
         if pageParser.find('h2',{'aria-label':'Error Message'}) is not None:
@@ -12,6 +20,7 @@ class Parser:
         # TODO Report an error here with Sentry
         if pageParser.h1.text != "Crash Results":
             print('[x] There is an error occured')
+            raise ValueError
 
         results=pageParser.find('table',{'id':'mySearchTable'}).findAll('tr', 'selectable')
 

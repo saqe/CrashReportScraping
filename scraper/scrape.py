@@ -2,11 +2,10 @@ import requests as re
 from bs4 import BeautifulSoup
 from os import getenv
 from datetime import datetime, timedelta
-from catpchaSolver import Solver
 
 class Scraper:
-    def __init__(self, name, age):
-        self.requestHeader={ 'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8','accept-language': 'en-US,en;q=0.5','cache-control': 'no-cache','pragma': 'no-cache','upgrade-insecure-requests': '1','user-agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36',}
+    def __init__(self):
+        self.requestHeader={ 'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8','accept-language': 'en-US,en;q=0.5','user-agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36',}
         
         self.postHeader=self.requestHeader.copy()        
         self.postHeader['Origin']       = getenv('REQUEST_ORIGIN')
@@ -16,16 +15,20 @@ class Scraper:
         self.COUNTIES={ 48 : 'Lucas', 35 : 'Henry', 26 : 'Fulton', 87 : 'Wood', 62 : 'Ottwa', }
         
         self.date_now=datetime.now()
-        self.start_date = ( date_now - timedelta(days=3) )\
+        
+        # ENV is string - So we need to make sure that its converted into int
+        PREVIOUS_DAYS=int(getenv('DAYS_BACK'))
+
+        self.start_date = ( self.date_now - timedelta(days=PREVIOUS_DAYS) )\
             .strftime("%m/%d/%Y")\
             .replace('/','%2F')
-        self.end_date = date_now\
+        self.end_date = self.date_now\
             .strftime("%m/%d/%Y")\
             .replace('/','%2F')
 
-        self.session=requests.Session()
-
-        self.captcha=Solver()
+        self.session = requests.Session()
+        self.captcha = CaptchaSolver()
+        self.parser  = Parser()
 
     def start_scraping(self):
         for county_id , county_name in self.COUNTIES.items():
@@ -51,7 +54,7 @@ class Scraper:
 
     def scrape_data_by_county(self,county_code,county_name):
         # Each requests to begin will require a token and captcha solution
-        search_page_token , captcha_solution = self.get_search_page_token_and_captcha_answer(self)
+        search_page_token , captcha_solution = self.get_search_page_token_and_captcha_answer()
 
         # Completing data to be sent to the server for POST request
         DATA1=getenv('REQUEST_DATA_POST_1')\
@@ -75,23 +78,24 @@ class Scraper:
         
         resultPageParser=BeautifulSoup(resultPage.content,'html.parser')
 
-        self.token=resultPageParser.find('form',{'id':'Search'}).find('input',{'name':'__RequestVerificationToken'})['value']
+        token=self.parser.get_verification_token(resultPageParser)
 
         # TODO Report to Sentry for Error
-
-        try:    
-            parse_result( resultPageParser , county_name)
+        # TODO add a report to Captcha
+        # TODO Try again with a Flag
+        try:
+            self.parser.parse_result( resultPageParser , county_name)
         except: 
-            print ('[X] ERROR Happened', captcha , county_name)
-
+            print ('[X] ERROR Happened', captcha_solution , county_name)
+            self.captcha.report_bad()
 
         # Moving to next page
-        if resultPageParser.find( 'li' , {'aria-label':'Next page'} ) is not None:
+        if self.parser.is_next_button_exists(resultPageParser):
             for page_no in range(1,20):
                 print("Page : ",page_no)
                 DATA2=getenv('REQUEST_DATA_POST_2')\
                         .format(
-                            token=self.token,
+                            token=token,
                             start_date=self.start_date,
                             end_date=self.end_date,
                             county=county_code,
@@ -100,9 +104,10 @@ class Scraper:
                         )
 
                 resultPage=self.session.post(
-                    getenv('REQUEST_LINK_POST_2'),
-                    headers=self.postHeader,
-                    data=DATA2)
+                            getenv('REQUEST_LINK_POST_2'),
+                            headers=self.postHeader,
+                            data=DATA2
+                        )
 
                 # TODO report error to Sentry
                 if resultPage.status_code != 200: 
@@ -110,25 +115,13 @@ class Scraper:
 
                 resultPageParser=BeautifulSoup(resultPage.content,'html.parser')
 
-                self.token=resultPageParser\
-                    .find('form',{'id':'Search'})\
-                    .find('input',{'name':'__RequestVerificationToken'})['value']
+                token=self.parser.get_verification_token(resultPageParser)
+
+                self.parser.parse_result(resultPageParser , county_name)
                 
-                scrape_result(resultPageParser , county_name)
-                
-                if resultPageParser\
-                    .find('li',{'aria-label':'Next page'}) is None:
-                    # Next Button is disappeared - Stop the bot here.
-                    break
-                else:
+                if self.parser.is_next_button_exists(resultPageParser):
                     # Next Button can be seen keep working
                     continue
-
-
-        
-            
-        
-        
-
-        
-        
+                else:
+                    # Next Button is disappeared - Stop the bot here.
+                    break
