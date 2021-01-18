@@ -3,17 +3,10 @@ from flask import Flask
 from scraper import Scraper
 import sentry_sdk
 from sentry_sdk.integrations.flask import FlaskIntegration
-
 from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
-
-sentry_sdk.init(
-    dsn=getenv('SENTRY_API_LINK'),
-    integrations=[FlaskIntegration()],
-    traces_sample_rate=1.0,
-)
 
 @app.route('/start-the-scraper')
 def hello_name():
@@ -23,10 +16,14 @@ def hello_name():
 
 @app.route('/')
 def wellcome():
-   return 'Hello world'
+    return 'Hello world'
 
 if __name__ == '__main__':
-   app.run(debug = True)
+    sentry_sdk.init(
+        dsn=getenv('SENTRY_API_LINK'),
+        integrations=[FlaskIntegration()],
+        traces_sample_rate=1.0,)
+    app.run(debug = True)
 
 
 
