@@ -1,8 +1,8 @@
 from os import getenv
-import sentry_sdk
 from flask import Flask
-
 from scraper import Scraper
+import sentry_sdk
+from sentry_sdk.integrations.flask import FlaskIntegration
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -10,8 +10,9 @@ load_dotenv()
 app = Flask(__name__)
 
 sentry_sdk.init(
-    getenv('SENTRY_API_LINK'),
-    traces_sample_rate=1.0
+    dsn=getenv('SENTRY_API_LINK'),
+    integrations=[FlaskIntegration()],
+    traces_sample_rate=1.0,
 )
 
 @app.route('/start-the-scraper')
@@ -26,7 +27,6 @@ def wellcome():
 
 if __name__ == '__main__':
    app.run(debug = True)
-
 
 
 
