@@ -1,5 +1,4 @@
 from util.db import DatabaseManager
-
 class Parser:
     def __init__(self):
         self.db=DatabaseManager()

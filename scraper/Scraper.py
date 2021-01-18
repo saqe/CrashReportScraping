@@ -1,7 +1,9 @@
-import requests as re
+import requests
 from bs4 import BeautifulSoup
 from os import getenv
 from datetime import datetime, timedelta
+from util.captcha import CaptchaSolver
+from scraper import Parser
 
 class Scraper:
     def __init__(self):
@@ -53,41 +55,52 @@ class Scraper:
         return search_page_token , captcha_solution
 
     def scrape_data_by_county(self,county_code,county_name):
-        # Each requests to begin will require a token and captcha solution
-        search_page_token , captcha_solution = self.get_search_page_token_and_captcha_answer()
+        # A flag to try atleast 2 times
+        first_try=True
+        while True and first_try:
+            
+            first_try=False
+            # Each requests to begin will require a token and captcha solution
+            search_page_token , captcha_solution = self.get_search_page_token_and_captcha_answer()
 
-        # Completing data to be sent to the server for POST request
-        DATA1=getenv('REQUEST_DATA_POST_1')\
-                .format(
-                    token=search_page_token,
-                    start_date=self.start_date,
-                    end_date=self.end_date,
-                    county=county_code,
-                    captcha=captcha_solution
-                    )
+            # Completing data to be sent to the server for POST request
+            DATA1=getenv('REQUEST_DATA_POST_1')\
+                    .format(
+                        token=search_page_token,
+                        start_date=self.start_date,
+                        end_date=self.end_date,
+                        county=county_code,
+                        captcha=captcha_solution
+                        )
+            
+            # Initiate the searching process
+            resultPage=self.session.post(
+                getenv('REQUEST_LINK_POST_1'),
+                headers=self.postHeader,
+                data=DATA1)
+
+            # TODO report to sentry for error Handling
+            if resultPage.status_code!=200: 
+                print('[!] Page status code: ',resultPage.status_code)
+            
+            resultPageParser=BeautifulSoup(resultPage.content,'html.parser')
+
+            token=self.parser.get_verification_token(resultPageParser)
+
+            # TODO Report to Sentry for Error
+            try:
+                self.parser.parse_result( resultPageParser , county_name)
+                break # If upper code work fine break the loop
+            
+            except ValueError: 
+                print ('[X] ERROR Happened', captcha_solution , county_name)
+                self.captcha.report_bad()
+                
+                # Try one more time to test if we can get the data
+                if first_try: 
+                    continue
+            break # Just for a safer side
         
-        # Initiate the searching process
-        resultPage=self.session.post(
-            getenv('REQUEST_LINK_POST_1'),
-            headers=self.postHeader,
-            data=DATA1)
-
-        # TODO report to sentry for error Handling
-        if resultPage.status_code!=200: 
-            print('[!] Page status code: ',resultPage.status_code)
-        
-        resultPageParser=BeautifulSoup(resultPage.content,'html.parser')
-
-        token=self.parser.get_verification_token(resultPageParser)
-
-        # TODO Report to Sentry for Error
-        # TODO add a report to Captcha
-        # TODO Try again with a Flag
-        try:
-            self.parser.parse_result( resultPageParser , county_name)
-        except: 
-            print ('[X] ERROR Happened', captcha_solution , county_name)
-            self.captcha.report_bad()
 
         # Moving to next page
         if self.parser.is_next_button_exists(resultPageParser):
