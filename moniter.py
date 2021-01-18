@@ -23,8 +23,4 @@ if __name__ == '__main__':
         dsn=getenv('SENTRY_API_LINK'),
         integrations=[FlaskIntegration()],
         traces_sample_rate=1.0,)
-    app.run(debug = True)
-
-
-
-
+    app.run()
