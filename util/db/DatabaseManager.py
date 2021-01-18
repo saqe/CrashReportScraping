@@ -5,10 +5,7 @@ from sentry_sdk import capture_exception, capture_message
 class DatabaseManager:
     def __init__(self):
         # Connection made with mongoDb database
-        connection = MongoClient(
-            getenv('MONGODB_URI'),
-            tls=True,
-            tlsCertificateKeyFile=getenv('MONGODB_CON_CERT_FILE'))
+        connection = MongoClient(getenv('MONGODB_URI'))
         db = connection['State']
         self.collection = db['OHIO']
 
