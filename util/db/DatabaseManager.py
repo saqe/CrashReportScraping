@@ -1,5 +1,6 @@
 from pymongo import MongoClient
 from os import getenv
+from sentry_sdk import capture_exception, capture_message
 
 class DatabaseManager:
     def __init__(self):

@@ -4,7 +4,7 @@ from os import getenv
 from datetime import datetime, timedelta
 from util.captcha import CaptchaSolver
 from scraper import Parser
-
+from sentry_sdk import capture_exception, capture_message
 class Scraper:
     def __init__(self):
         self.requestHeader={ 'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8','accept-language': 'en-US,en;q=0.5','user-agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36',}
@@ -92,12 +92,14 @@ class Scraper:
                 self.parser.parse_result( resultPageParser , county_name)
                 break # If upper code work fine break the loop
             
-            except ValueError: 
-                print ('[X] ERROR Happened', captcha_solution , county_name)
+            except ValueError as err:
+                capture_exception(err)
+                capture_message('[X] ERROR Happened', captcha_solution , county_name)
+                print('[X] ERROR Happened', captcha_solution , county_name)
                 self.captcha.report_bad()
                 
                 # Try one more time to test if we can get the data
-                if first_try: 
+                if first_try:
                     continue
             break # Just for a safer side
         

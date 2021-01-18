@@ -16,7 +16,7 @@ def __init__(self):
       "api-key": getenv('SMTP_API_KEY')
   }
 
-def send_message(message):
+def send_message(self,message):
   self.payload["textContent"]=message
 
   response = requests.post(

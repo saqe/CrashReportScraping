@@ -1,6 +1,7 @@
 import requests
 from os import getenv
 from time import sleep
+from sentry_sdk import capture_exception, capture_message
 
 class CaptchaSolver:
     def __init__(self):
@@ -32,12 +33,12 @@ class CaptchaSolver:
             if captcha_solution != 'CAPCHA_NOT_READY':       
                 break
             else:
+                capture_message('CAPTCHA NOT READY - Trying again')
                 print('CAPTCHA NOT READY - Trying again')
 
         print('[-] Captcha Solved')
         
-        # TODO report recaptcha id and response
-
+        capture_message('Recaptcha ID :',self.requests_id,' | Solution :',captcha_solution.upper())
         return captcha_solution.upper()
 
     # [Optional] Report the captcha if that works fine
@@ -51,9 +52,11 @@ class CaptchaSolver:
 
     # Report the captcha if that's wrong
     def report_bad(self):
+        capture_message('[Report BAD] Request ID :',self.requests_id)
         requests.get(
             getenv('CAPTCHA_API_REPORT').format(
                 key=getenv('CAPTCHA_API_KEY'),
                 action='reportbad',
                 report_id=self.requests_id)
         )
+        

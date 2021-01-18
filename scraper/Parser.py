@@ -1,4 +1,6 @@
 from util.db import DatabaseManager
+from sentry_sdk import capture_exception, capture_message
+
 class Parser:
     def __init__(self):
         self.db=DatabaseManager()
@@ -14,7 +16,7 @@ class Parser:
     def parse_result(self, pageParser, county_name):
         # TODO report error here with Sentry
         if pageParser.find('h2',{'aria-label':'Error Message'}) is not None:
-            print(error.text)
+            capture_message('Error reported at parse result - error message shown')
         
         # TODO Report an error here with Sentry
         if pageParser.h1.text != "Crash Results":
