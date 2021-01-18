@@ -29,5 +29,5 @@ if __name__ == '__main__':
 
     # Certifacte for Heroku
     with open(getenv('MONGODB_CON_CERT_FILE'), "w") as cert:
-        cert.write(getenv(getenv('MONGODB_CON_CERT_FILE')))
+        cert.write(getenv('CERT'))
     app.run()
