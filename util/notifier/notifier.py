@@ -13,7 +13,7 @@ class Notifier:
       
     def prepare_mail(self,record):
       html=self.HTML_CONTENT
-      html\
+      html=html\
         .replace("{{crash_id}}",    record["Crash Number"])\
         .replace("{{crash_date}}",  record["Crash Date"].strftime('%m/%d/%Y'))\
         .replace("{{doc_no}}",      record["Document Number"])\
