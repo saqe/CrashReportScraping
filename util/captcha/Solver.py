@@ -38,7 +38,7 @@ class CaptchaSolver:
 
         print('[-] Captcha Solved')
         
-        capture_message('Recaptcha ID :',self.requests_id,' | Solution :',captcha_solution.upper())
+        capture_message(f'Recaptcha ID : {self.requests_id}  | Solution : {captcha_solution.upper()}')
         return captcha_solution.upper()
 
     # [Optional] Report the captcha if that works fine
@@ -52,7 +52,7 @@ class CaptchaSolver:
 
     # Report the captcha if that's wrong
     def report_bad(self):
-        capture_message('[Report BAD] Request ID :',self.requests_id)
+        capture_message(f'[Report BAD] Request ID : {self.requests_id} ')
         requests.get(
             getenv('CAPTCHA_API_REPORT').format(
                 key=getenv('CAPTCHA_API_KEY'),

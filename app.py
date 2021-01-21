@@ -1,30 +1,21 @@
 from os import getenv
-from flask import Flask, request
 from scraper import Scraper
 import sentry_sdk
-from sentry_sdk.integrations.flask import FlaskIntegration
+from sentry_sdk.integrations.logging import LoggingIntegration
+import logging
 from dotenv import load_dotenv
 load_dotenv()
 
-app = Flask(__name__)
+# All of this is already happening by default!
+sentry_logging = LoggingIntegration(
+    level=logging.INFO,        # Capture info and above as breadcrumbs
+    event_level=logging.ERROR  # Send errors as events
+)
 
 sentry_sdk.init(
         dsn=getenv('SENTRY_API_LINK'),
-        integrations=[FlaskIntegration()],
+        integrations=[sentry_logging],
         traces_sample_rate=1.0,)
 
-@app.route('/start-the-scraper')
-def hello_name():
-    if request.args.get('token')==getenv('TOKEN'):
-        scraper=Scraper()
-        scraper.start_scraping()
-        return 'Started'
-    else:
-        return 'You might be lost'
-
-@app.route('/')
-def wellcome():
-    return 'Hello world'
-
-if __name__ == '__main__':
-    app.run()
+scraper=Scraper()
+scraper.start_scraping()

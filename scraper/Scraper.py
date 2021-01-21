@@ -89,12 +89,12 @@ class Scraper:
 
             # TODO Report to Sentry for Error
             try:
-                self.parser.parse_result( resultPageParser , county_name)
+                self.parser.parse_result( resultPageParser , county_name , self.session)
                 break # If upper code work fine break the loop
             
             except ValueError as err:
                 capture_exception(err)
-                capture_message('[X] ERROR Happened', captcha_solution , county_name)
+                capture_message(f'[X] ERROR Happened {captcha_solution} - {county_name}')
                 print('[X] ERROR Happened', captcha_solution , county_name)
                 self.captcha.report_bad()
                 
@@ -132,7 +132,7 @@ class Scraper:
 
                 token=self.parser.get_verification_token(resultPageParser)
 
-                self.parser.parse_result(resultPageParser , county_name)
+                self.parser.parse_result(resultPageParser , county_name, self.session)
                 
                 if self.parser.is_next_button_exists(resultPageParser):
                     # Next Button can be seen keep working
