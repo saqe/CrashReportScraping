@@ -33,7 +33,7 @@ class CaptchaSolver:
             if captcha_solution != 'CAPCHA_NOT_READY':       
                 break
             else:
-                capture_message('CAPTCHA NOT READY - Trying again')
+                # capture_message('CAPTCHA NOT READY - Trying again')
                 print('CAPTCHA NOT READY - Trying again')
 
         print('[-] Captcha Solved')
@@ -52,7 +52,8 @@ class CaptchaSolver:
 
     # Report the captcha if that's wrong
     def report_bad(self):
-        capture_message(f'[Report BAD] Request ID : {self.requests_id} ')
+        
+        # capture_message(f'[Report BAD] Request ID : {self.requests_id} ')
         requests.get(
             getenv('CAPTCHA_API_REPORT').format(
                 key=getenv('CAPTCHA_API_KEY'),
