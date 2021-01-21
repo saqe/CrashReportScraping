@@ -28,3 +28,7 @@ class FileManager:
             remove(report_file_name)
         except FileNotFoundError as err:
             capture_exception(err)
+
+            # asdaa
+            git config --global user.email "saqib.py@gmail.com"
+            git config --global user.name "Saqib"
