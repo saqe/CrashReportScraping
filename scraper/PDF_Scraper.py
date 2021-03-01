@@ -6,14 +6,14 @@ class PdfParser:
         
     def parse(self):
         record_list=[]
-        with open('202010297.pdf', 'rb') as f:
+        with open(self.file_name, 'rb') as f:
             pdf = PdfFileReader(f)
             for page_number in range(pdf.numPages):
-            text = pdf.getPage(page_number).extractText()
-            if 'VEHICLE IDENTIFICATION #' in text:
-                record_list.append(
-                    self.get_unit_record(text)
-                )
+                text = pdf.getPage(page_number).extractText()
+                if 'VEHICLE IDENTIFICATION #' in text:
+                    record_list.append(
+                        self.get_unit_record(text)
+                    )
         return record_list
 
     def get_unit_record(self, text):
