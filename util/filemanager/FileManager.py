@@ -1,6 +1,6 @@
 from os import remove
 from util.s3 import DigitalOceanSpaces
-from sfrom sentry_sdk import capture_exception
+from sentry_sdk import capture_exception
 class FileManager:
     def __init__(self):
       self.storage=DigitalOceanSpaces()
@@ -13,7 +13,7 @@ class FileManager:
     
     def download_pdf_report_local(self, page, report_file_name):
         # TODO Just for testing
-        if self.storage.if_file_exists(report_file_name):return 
+        # if self.storage.if_file_exists(report_file_name):return 
         
         if page.headers['Content-Type']=='application/pdf':
             with open(report_file_name, 'wb') as f:

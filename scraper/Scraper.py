@@ -101,10 +101,7 @@ class Scraper:
                 break # If upper code work fine break the loop
             
             except ValueError as err:
-                capture_exception(err)
-                # capture_message(f'[X] ERROR Happened {captcha_solution} - {county_name}')
-
-                self.logger.error(
+                self.logger.debug(
                     f'Wrong Captcha' ,
                     extra={'tags': {
                         'county':county_name,

@@ -34,7 +34,6 @@ class Notifier:
         .replace("{{jurisdiction}}",record["Jurisdiction"])\
         .replace("{{severity}}",    record["Crash Severity"])\
         .replace("{{county}}",      record["County"])
-
       return html
 
     def prepare_slack_message(self,record,download_link):

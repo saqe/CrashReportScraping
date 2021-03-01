@@ -1,5 +1,6 @@
 import boto3
 from os import getenv
+from sentry_sdk import capture_exception
 class DigitalOceanSpaces:
     def __init__(self):
         s3config = {
@@ -19,13 +20,15 @@ class DigitalOceanSpaces:
             [x.key.replace(self.DO_FOLDER+'/','') for x in self.s3resource.Bucket('state-car-reports').objects.all()]
         )
 
-
     def upload_file(self, file_to_upload, name_after_upload):
-        response=self.s3client.upload_file(
-            file_to_upload,
-            self.BUCKET,
-            f"{self.DO_FOLDER}/{name_after_upload}"
-        )
+        try:
+            response=self.s3client.upload_file(
+                file_to_upload,
+                self.BUCKET,
+                f"{self.DO_FOLDER}/{name_after_upload}"
+            )
+        except Exception as err:
+            capture_exception(err)
     
     def if_file_exists(self, report_file_name):
         return report_file_name in self.set_of_uploaded_reports

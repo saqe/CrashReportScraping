@@ -19,3 +19,6 @@ s3resource = boto3.resource("s3", **s3config)
 # Initializing S3.Client object - http://boto3.readthedocs.io/en/latest/reference/services/s3.html#client
 s3client = boto3.client("s3", **s3config)
 s3client = boto3.client("s3", **s3config)
+import os
+print('====',os.path.dirname(__file__))
+print('====',os.getcwd()) 

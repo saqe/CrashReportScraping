@@ -37,13 +37,10 @@ class Parser:
         
         self.filemanager.download_pdf_report_local(page, record['report_file_name'])
 
-
     def parse_result(self, pageParser, county_name, session):
-        # TODO report error here with Sentry
         if pageParser.find('h2',{'aria-label':'Error Message'}) is not None:
             capture_message('Error reported at parse result - error message shown')
         
-        # TODO Report an error here with Sentry
         if pageParser.h1.text != "Crash Results":
             print('[x] There is an error occured')
             raise ValueError
@@ -81,7 +78,7 @@ class Parser:
             self.filemanager.upload_report_on_cloud(
                 file_to_upload      = record['report_file_name'],
                 name_after_upload   = record['report_file_name']
-                )
+            )
 
             # Send an Email / Slack Notification to Person
             self.notify.send(record)
