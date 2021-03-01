@@ -5,6 +5,8 @@ import requests
 from os import getenv
 from util.notifier import Notifier
 from util.filemanager import FileManager
+from scraper.PDF_Scraper import PdfParser
+
 class Parser:
     def __init__(self):
         self.db=DatabaseManager()
@@ -80,6 +82,9 @@ class Parser:
                 name_after_upload   = record['report_file_name']
             )
 
+            report_detail=PdfParser(record['report_file_name'])
+            record['PdfReportList'] = report_detail.parse()
+            
             # Send an Email / Slack Notification to Person
             self.notify.send(record)
 
