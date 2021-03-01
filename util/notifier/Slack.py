@@ -41,6 +41,6 @@ class SlackHook:
 
         requests.post(
             self.HOOK_LINK,
-            headers={'Content-type':'application/json'},
+            headers={'Content-Type':'application/json'},
             json=payload
         ).text

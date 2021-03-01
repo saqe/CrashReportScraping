@@ -6,7 +6,6 @@ from util.captcha import CaptchaSolver
 from scraper import Parser
 from sentry_sdk import capture_exception, capture_message
 import logging
-
 class Scraper:
     def __init__(self):
         self.logger = logging.getLogger(__name__)
@@ -76,20 +75,22 @@ class Scraper:
                         end_date=self.end_date,
                         county=county_code,
                         captcha=captcha_solution
-                        )
+                    )
             
             print('Sending POST Requests')
             # Initiate the searching process
             resultPage=self.session.post(
                 getenv('REQUEST_LINK_POST_1'),
                 headers=self.postHeader,
-                data=DATA1)
+                data=DATA1
+            )
 
             # TODO report to sentry for error Handling
             if resultPage.status_code!=200:
                 self.logger.error(
                     f'[{resultPage.status_code}] - {resultPage.url}' ,
-                    extra={'tags': {'url':resultPage.url,'status':resultPage.status_code}})
+                    extra={'tags': {'url':resultPage.url,'status':resultPage.status_code}}
+                )
 
             resultPageParser=BeautifulSoup(resultPage.content,'html.parser')
 
@@ -97,7 +98,7 @@ class Scraper:
 
             # TODO Report to Sentry for Error
             try:
-                self.parser.parse_result( resultPageParser , county_name , self.session)
+                self.parser.parse_result( resultPageParser , county_name , self.session )
                 break # If upper code work fine break the loop
             
             except ValueError as err:
@@ -107,7 +108,9 @@ class Scraper:
                         'county':county_name,
                         'captcha-solution':captcha_solution,
                         'stage':'scrape_data_by_county',
-                        }})
+                        }
+                    }
+                )
 
                 # print('[X] ERROR Happened', captcha_solution , county_name)
                 self.captcha.report_bad()
@@ -140,7 +143,7 @@ class Scraper:
                             getenv('REQUEST_LINK_POST_2'),
                             headers=self.postHeader,
                             data=DATA2
-                        )
+                )
 
                 # TODO report error to Sentry
                 if resultPage.status_code != 200: 
